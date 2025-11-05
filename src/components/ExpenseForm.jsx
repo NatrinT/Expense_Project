@@ -8,17 +8,32 @@ const categoryOptions = [
   "ค่าของใช้ในบ้าน",
 ];
 
+// 🎨 1. สร้างฟังก์ชันสำหรับดึงวันที่ปัจจุบันในรูปแบบ YYYY-MM-DD
+//    (ซึ่งเป็น format ที่ <input type="date"> ต้องการ)
+const getTodayDate = () => {
+  return new Date().toISOString().split('T')[0];
+};
+
 const ExpenseForm = ({ onSuccess }) => {
   const [form, setForm] = useState({
     category: "",
     amount: "",
     description: "",
+    date: getTodayDate(), // 🎨 2. เพิ่ม date และตั้งค่าเริ่มต้นเป็น "วันนี้"
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // 🎨 (ไม่ต้องแก้) 'form' state ที่มี 'date' จะถูกส่งไปกับ createExpense
     await createExpense(form);
-    setForm({ category: "", amount: "", description: "" });
+    
+    // 🎨 3. Reset form ให้กลับเป็น "วันนี้" (แทนที่จะเป็นค่าว่าง)
+    setForm({
+      category: "",
+      amount: "",
+      description: "",
+      date: getTodayDate(), 
+    });
     onSuccess();
   };
 
@@ -38,11 +53,11 @@ const ExpenseForm = ({ onSuccess }) => {
       }}
     >
       <input
-        placeholder="หมวดหมู่ (เลือกหรือพิมพ์)" 
+        placeholder="หมวดหมู่ (เลือกหรือพิมพ์)"
         value={form.category}
         onChange={(e) => setForm({ ...form, category: e.target.value })}
         required
-        list="category-options" 
+        list="category-options"
         style={{
           padding: "12px 15px",
           border: "1px solid #ddd",
@@ -71,6 +86,23 @@ const ExpenseForm = ({ onSuccess }) => {
           fontFamily: "sans-serif",
         }}
       />
+      
+      {/* 🎨 4. เพิ่มช่องสำหรับกรอกวันที่ (Date Input) 🎨 */}
+      <input
+        type="date"
+        value={form.date}
+        onChange={(e) => setForm({ ...form, date: e.target.value })}
+        required
+        style={{
+          padding: "12px 15px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          fontSize: "1rem",
+          fontFamily: "sans-serif",
+          color: "#333", // 🎨 (เพิ่มสีตัวอักษรให้ชัดเจน)
+        }}
+      />
+
       <input
         placeholder="รายละเอียด"
         value={form.description}
